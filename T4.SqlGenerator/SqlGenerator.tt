@@ -1,0 +1,37 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Configuration" #>
+<#@ assembly name="System.Data" #>
+<#@ assembly name="$(ProjectDir)bin\$(ConfigurationName)\Dapper.dll" #>
+<#@ assembly name="Microsoft.CSharp" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Configuration" #>
+<#@ import namespace="System.Data.SqlClient" #>
+<#@ import namespace="Dapper" #>
+<#@ import namespace="Microsoft.CSharp.RuntimeBinder" #>
+<#@ include file="Functions.t4" #>
+<#@ output extension=".sql" #>
+<#
+using (var connection = new SqlConnection("Data Source=RCM41VDCPEDB01;Initial Catalog=EligibilityIntegrity_QA;Integrated Security=True;"))
+{
+    connection.Open();
+    var rows = connection.Query("select top 1000 * from dbo.IcsCodeRepository");
+                
+	foreach (var row in rows)
+	{
+#>
+IF NOT EXISTS (SELECT * FROM IcsCodeRepository WHERE [Id] = 1)  
+	INSERT INTO [IcsCodeRepository]([Id], [CodeType], [CodeValue], [CodeDescription], [CreatedDate], [DeactivatedDate]) 
+	VALUES (<#= row.Id #>, '<#= row.CodeType #>', '<#= row.CodeValue #>', '<#= row.CodeDescription #>', <#= GetNullableDateString(row.CreatedDate) #>, <#= GetNullableDateString(row.DeactivatedDate) #>);
+ELSE 
+	UPDATE [IcsCodeRepository] 
+	SET [CodeType] = '<#= row.CodeType #>', [CodeValue] = '<#= row.CodeValue #>', [CodeDescription] = '<#= row.CodeDescription #>', [CreatedDate] = <#= GetNullableDateString(row.CreatedDate) #>, [DeactivatedDate] = <#= GetNullableDateString(row.DeactivatedDate) #> 
+	WHERE [Id] = <#= row.Id #>;
+GO
+
+<#
+	}
+}
+#>
