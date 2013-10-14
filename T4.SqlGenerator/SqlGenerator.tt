@@ -16,14 +16,14 @@
 <#@ include file="SaveOutput.tt" #>
 <#@ output extension=".txt" #>
 <#
+var pageIndex = 0;
+var pageSize = 4500;
+var startRowId = pageIndex * pageSize + 1;
+var endRowId = startRowId + pageSize - 1;
+
 using (var connection = new SqlConnection("Data Source=RCM41VDCPEDB01;Initial Catalog=EligibilityIntegrity_QA;Integrated Security=True;"))
 {
     connection.Open();
-	
-	var pageIndex = 0;
-	var pageSize = 4500;
-	var startRowId = pageIndex * pageSize + 1;
-	var endRowId = startRowId + pageSize - 1;
 
 	var sql = new StringBuilder();
 	sql.AppendLine("WITH data AS");
@@ -54,5 +54,6 @@ GO
 	}
 }
 
-SaveOutput("IcsCodeRepository.sql");
+var fileName = string.Format("IcsCodeRepository_{0}.sql", (pageIndex + 1).ToString("0#"));
+SaveOutput(fileName);
 #>

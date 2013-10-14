@@ -64,7 +64,7 @@
     <None Include="Functions.t4" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="IcsCodeRepository.sql" />
+    <Content Include="IcsCodeRepository_01.sql" />
     <Content Include="SaveOutput.txt">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
