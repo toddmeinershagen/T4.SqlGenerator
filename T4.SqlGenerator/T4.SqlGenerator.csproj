@@ -48,9 +48,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="SaveOutput.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>SaveOutput.txt</LastGenOutput>
+    </None>
     <None Include="SqlGenerator.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>SqlGenerator.sql</LastGenOutput>
+      <LastGenOutput>SqlGenerator.txt</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -60,7 +64,13 @@
     <None Include="Functions.t4" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="SqlGenerator.sql">
+    <Content Include="IcsCodeRepository.sql" />
+    <Content Include="SaveOutput.txt">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SaveOutput.tt</DependentUpon>
+    </Content>
+    <Content Include="SqlGenerator.txt">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>SqlGenerator.tt</DependentUpon>

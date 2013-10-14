@@ -1,4 +1,4 @@
-﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
 <#@ assembly name="System.Core" #>
 <#@ assembly name="System.Configuration" #>
 <#@ assembly name="System.Data" #>
@@ -6,19 +6,38 @@
 <#@ assembly name="Microsoft.CSharp" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
+<#@ import namespace="System.IO" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="System.Configuration" #>
 <#@ import namespace="System.Data.SqlClient" #>
 <#@ import namespace="Dapper" #>
 <#@ import namespace="Microsoft.CSharp.RuntimeBinder" #>
 <#@ include file="Functions.t4" #>
-<#@ output extension=".sql" #>
+<#@ include file="SaveOutput.tt" #>
+<#@ output extension=".txt" #>
 <#
 using (var connection = new SqlConnection("Data Source=RCM41VDCPEDB01;Initial Catalog=EligibilityIntegrity_QA;Integrated Security=True;"))
 {
     connection.Open();
-    var rows = connection.Query("select top 1000 * from dbo.IcsCodeRepository");
-                
+	
+	var pageIndex = 0;
+	var pageSize = 4500;
+	var startRowId = pageIndex * pageSize + 1;
+	var endRowId = startRowId + pageSize - 1;
+
+	var sql = new StringBuilder();
+	sql.AppendLine("WITH data AS");
+	sql.AppendLine("(");
+	sql.AppendLine("	SELECT	ROW_NUMBER() OVER (ORDER BY Id) AS rowId, ");
+	sql.AppendLine("			*");
+	sql.AppendLine("	FROM	dbo.ICSCodeRepository");
+	sql.AppendLine(")");
+	sql.AppendLine("SELECT	*");
+	sql.AppendLine("FROM	data");
+	sql.AppendLine("WHERE	rowId >= " + startRowId + " AND rowId <= " + endRowId);
+
+    var rows = connection.Query(sql.ToString());
+
 	foreach (var row in rows)
 	{
 #>
@@ -34,4 +53,6 @@ GO
 <#
 	}
 }
+
+SaveOutput("IcsCodeRepository.sql");
 #>
